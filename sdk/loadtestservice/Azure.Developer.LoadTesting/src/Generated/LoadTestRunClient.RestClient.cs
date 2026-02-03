@@ -611,7 +611,7 @@ namespace Azure.Developer.LoadTesting
             return message;
         }
 
-        internal HttpMessage CreatePatchLatestTestRunInsightsRequest(string testRunId, RequestContent content, RequestContext context)
+        internal HttpMessage CreateUpdateLatestTestRunInsightsRequest(string testRunId, RequestContent content, RequestContext context)
         {
             RawRequestUriBuilder uri = new RawRequestUriBuilder();
             uri.Reset(_endpoint);
