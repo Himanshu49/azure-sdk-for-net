@@ -1276,8 +1276,8 @@ namespace Azure.Developer.LoadTesting
         /// </list>
         /// </summary>
         /// <param name="orderby">
-        /// Sort on the supported fields in (field asc/desc) format. eg: executedDateTime
-        /// asc. Supported fields - executedDateTime
+        /// Sort on the supported fields in (field asc/desc) format. eg: createdDateTime asc.
+        /// Supported fields - createdDateTime, executedDateTime (legacy)
         /// </param>
         /// <param name="search">
         /// Prefix based, case sensitive search on searchable fields - description,
@@ -1319,8 +1319,8 @@ namespace Azure.Developer.LoadTesting
         /// </list>
         /// </summary>
         /// <param name="orderby">
-        /// Sort on the supported fields in (field asc/desc) format. eg: executedDateTime
-        /// asc. Supported fields - executedDateTime
+        /// Sort on the supported fields in (field asc/desc) format. eg: createdDateTime asc.
+        /// Supported fields - createdDateTime, executedDateTime (legacy)
         /// </param>
         /// <param name="search">
         /// Prefix based, case sensitive search on searchable fields - description,
@@ -1355,8 +1355,8 @@ namespace Azure.Developer.LoadTesting
 
         /// <summary> Get all test runs for the given filters. </summary>
         /// <param name="orderby">
-        /// Sort on the supported fields in (field asc/desc) format. eg: executedDateTime
-        /// asc. Supported fields - executedDateTime
+        /// Sort on the supported fields in (field asc/desc) format. eg: createdDateTime asc.
+        /// Supported fields - createdDateTime, executedDateTime (legacy)
         /// </param>
         /// <param name="search">
         /// Prefix based, case sensitive search on searchable fields - description,
@@ -1390,8 +1390,8 @@ namespace Azure.Developer.LoadTesting
 
         /// <summary> Get all test runs for the given filters. </summary>
         /// <param name="orderby">
-        /// Sort on the supported fields in (field asc/desc) format. eg: executedDateTime
-        /// asc. Supported fields - executedDateTime
+        /// Sort on the supported fields in (field asc/desc) format. eg: createdDateTime asc.
+        /// Supported fields - createdDateTime, executedDateTime (legacy)
         /// </param>
         /// <param name="search">
         /// Prefix based, case sensitive search on searchable fields - description,
@@ -1969,16 +1969,16 @@ namespace Azure.Developer.LoadTesting
         /// <exception cref="ArgumentException"> <paramref name="testRunId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual Response PatchLatestTestRunInsights(string testRunId, RequestContent content, RequestContext context = null)
+        public virtual Response UpdateLatestTestRunInsights(string testRunId, RequestContent content, RequestContext context = null)
         {
-            using DiagnosticScope scope = ClientDiagnostics.CreateScope("LoadTestRunClient.PatchLatestTestRunInsights");
+            using DiagnosticScope scope = ClientDiagnostics.CreateScope("LoadTestRunClient.UpdateLatestTestRunInsights");
             scope.Start();
             try
             {
                 Argument.AssertNotNullOrEmpty(testRunId, nameof(testRunId));
                 Argument.AssertNotNull(content, nameof(content));
 
-                using HttpMessage message = CreatePatchLatestTestRunInsightsRequest(testRunId, content, context);
+                using HttpMessage message = CreateUpdateLatestTestRunInsightsRequest(testRunId, content, context);
                 return Pipeline.ProcessMessage(message, context);
             }
             catch (Exception e)
@@ -2006,16 +2006,16 @@ namespace Azure.Developer.LoadTesting
         /// <exception cref="ArgumentException"> <paramref name="testRunId"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="RequestFailedException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-        public virtual async Task<Response> PatchLatestTestRunInsightsAsync(string testRunId, RequestContent content, RequestContext context = null)
+        public virtual async Task<Response> UpdateLatestTestRunInsightsAsync(string testRunId, RequestContent content, RequestContext context = null)
         {
-            using DiagnosticScope scope = ClientDiagnostics.CreateScope("LoadTestRunClient.PatchLatestTestRunInsights");
+            using DiagnosticScope scope = ClientDiagnostics.CreateScope("LoadTestRunClient.UpdateLatestTestRunInsights");
             scope.Start();
             try
             {
                 Argument.AssertNotNullOrEmpty(testRunId, nameof(testRunId));
                 Argument.AssertNotNull(content, nameof(content));
 
-                using HttpMessage message = CreatePatchLatestTestRunInsightsRequest(testRunId, content, context);
+                using HttpMessage message = CreateUpdateLatestTestRunInsightsRequest(testRunId, content, context);
                 return await Pipeline.ProcessMessageAsync(message, context).ConfigureAwait(false);
             }
             catch (Exception e)

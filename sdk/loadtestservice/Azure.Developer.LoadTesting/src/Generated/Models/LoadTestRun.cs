@@ -60,7 +60,7 @@ namespace Azure.Developer.LoadTesting
         /// <param name="status"> The test run status. </param>
         /// <param name="startDateTime"> The test run start DateTime(RFC 3339 literal format). </param>
         /// <param name="endDateTime"> The test run end DateTime(RFC 3339 literal format). </param>
-        /// <param name="executedDateTime"> Test run initiated time. </param>
+        /// <param name="executedDateTime"> Test run initiated time. This is legacy, new developments should use createdDateTime. </param>
         /// <param name="portalUri"> Portal url. </param>
         /// <param name="duration"> Test run duration in milliseconds. </param>
         /// <param name="virtualUserHours"> Virtual user hours consumed by the test run. </param>
@@ -192,7 +192,7 @@ namespace Azure.Developer.LoadTesting
         /// <summary> The test run end DateTime(RFC 3339 literal format). </summary>
         public DateTimeOffset? EndDateTime { get; }
 
-        /// <summary> Test run initiated time. </summary>
+        /// <summary> Test run initiated time. This is legacy, new developments should use createdDateTime. </summary>
         public DateTimeOffset? ExecutedDateTime { get; }
 
         /// <summary> Portal url. </summary>
