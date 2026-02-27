@@ -23,29 +23,69 @@ namespace Azure.Developer.LoadTesting.Tests
         {
             _loadTestAdministrationClient = CreateAdministrationClient();
 
-            // NOTE: Load test, test file and test profile requires a load test first.
-            if (RequiresLoadTest() || RequiresTestFile() || RequiresTestProfile())
+            // Call all Requires*() methods first to set resource IDs (avoid short-circuit issues)
+            bool needsLoadTest = RequiresLoadTest();
+            bool needsTestFile = RequiresTestFile();
+            bool needsTrigger = RequiresTrigger();
+            bool needsNotificationRule = RequiresNotificationRule();
+
+            if (needsLoadTest || needsTestFile || needsTrigger)
             {
                 await _testHelper.SetupLoadTestAsync(_loadTestAdministrationClient, _testId);
             }
 
-            if (RequiresTestFile() || RequiresTestProfile())
+            if (needsTestFile)
             {
                 await _testHelper.SetupTestScriptAsync(_loadTestAdministrationClient, _testId, _fileName);
             }
 
-            if (RequiresTestProfile())
+            if (needsTrigger)
             {
-                await _testHelper.SetupTestProfileAsync(_loadTestAdministrationClient, _testProfileId, _testId, TestEnvironment.TargetResourceId);
+                await _testHelper.SetupTriggerAsync(_loadTestAdministrationClient, _testId, _triggerId);
+            }
+
+            if (needsNotificationRule)
+            {
+                await _testHelper.SetupNotificationRuleAsync(
+                    _loadTestAdministrationClient,
+                    _notificationRuleId);
             }
         }
 
         [TearDown]
         public async Task TearDown()
         {
+            if (_loadTestAdministrationClient == null)
+            {
+                return;
+            }
+
+            if (RequiresNotificationRule() && !CheckForSkipDeleteNotificationRule())
+            {
+                try
+                {
+                    await _loadTestAdministrationClient.DeleteNotificationRuleAsync(_notificationRuleId);
+                }
+                catch (Exception)
+                {
+                    // Swallow - notification rule may already be deleted
+                }
+            }
+
+            if (RequiresTrigger() && !CheckForSkipDeleteTrigger())
+            {
+                try
+                {
+                    await _loadTestAdministrationClient.DeleteTriggerAsync(_triggerId);
+                }
+                catch (Exception)
+                {
+                    // Swallow - trigger may already be deleted
+                }
+            }
+
             if (!SkipTearDown())
             {
-                await _loadTestAdministrationClient.DeleteTestProfileAsync(_testProfileId);
                 await _loadTestAdministrationClient.DeleteTestAsync(_testId);
             }
         }
@@ -358,74 +398,169 @@ namespace Azure.Developer.LoadTesting.Tests
 
         [Test]
         [Category(REQUIRES_LOAD_TEST)]
-        public async Task CreateOrUpdateTestProfile()
+        public async Task CreateOrUpdateTrigger()
         {
-            _targetResourceId = TestEnvironment.TargetResourceId;
-            Response response = await _loadTestAdministrationClient.CreateOrUpdateTestProfileAsync(
-                _testProfileId,
+            Response response = await _loadTestAdministrationClient.CreateOrUpdateTriggerAsync(
+                _triggerId,
                 RequestContent.Create(
-                        new
+                    new
+                    {
+                        displayName = "Test Trigger from SDK",
+                        kind = "ScheduleTestsTrigger",
+                        testIds = new[] { _testId },
+                        startDateTime = DateTimeOffset.UtcNow.AddDays(1).ToString("o"),
+                        recurrence = new
                         {
-                            displayName = "Dotnet Testing Framework Loadtest",
-                            description = "This test was created through loadtesting C# SDK",
-                            testId = _testId,
-                            targetResourceId = _targetResourceId,
-                            targetResourceConfigurations = new
-                            {
-                                kind = "FunctionsFlexConsumption",
-                                configurations = new
-                                {
-                                    config1 = new
-                                    {
-                                        instanceMemoryMB = 2048,
-                                        httpConcurrency = 20
-                                    },
-                                    config2 = new
-                                    {
-                                        instanceMemoryMB = 4096,
-                                        httpConcurrency = 20
-                                    }
-                                }
-                            }
+                            interval = 1,
+                            frequency = "Daily",
+                            endDateTime = DateTimeOffset.UtcNow.AddDays(30).ToString("o"),
                         }
-                    )
-                );
+                    }
+                )
+            );
             JsonDocument jsonDocument = JsonDocument.Parse(response.Content.ToString());
-            Assert.AreEqual(_testProfileId, jsonDocument.RootElement.GetProperty("testProfileId").ToString());
+            Assert.NotNull(response.Content);
+            Assert.AreEqual(_triggerId, jsonDocument.RootElement.GetProperty("triggerId").ToString());
+
+            // Cleanup trigger created by test itself
+            await _loadTestAdministrationClient.DeleteTriggerAsync(_triggerId);
         }
 
         [Test]
-        [Category(REQUIRES_TEST_PROFILE)]
-        public async Task GetTestProfile()
+        [Category(REQUIRES_TRIGGER)]
+        public async Task GetTrigger()
         {
-            var testProfileResponse = await _loadTestAdministrationClient.GetTestProfileAsync(_testProfileId);
-            var testProfile = testProfileResponse.Value;
-            Assert.NotNull(testProfile);
-            Assert.AreEqual(_testProfileId, testProfile.TestProfileId);
-            Assert.AreEqual(_targetResourceId, testProfile.TargetResourceId.ToString());
+            var triggerResponse = await _loadTestAdministrationClient.GetTriggerAsync(_triggerId);
+            var trigger = triggerResponse.Value;
+            Assert.NotNull(trigger);
+            Assert.AreEqual(_triggerId, trigger.TriggerId);
+            Assert.AreEqual("Test Trigger from SDK", trigger.DisplayName);
         }
 
         [Test]
-        [Category(REQUIRES_TEST_PROFILE)]
-        public async Task ListTestProfile()
+        [Category(REQUIRES_TRIGGER)]
+        [Category(SKIP_DELETE_TRIGGER)]
+        public async Task DeleteTrigger()
         {
-            var testProfilesResponse = _loadTestAdministrationClient.GetTestProfilesAsync();
-            Assert.NotNull(testProfilesResponse);
-            await foreach (var page in testProfilesResponse.AsPages())
+            Response response = await _loadTestAdministrationClient.DeleteTriggerAsync(_triggerId);
+            Assert.NotNull(response);
+        }
+
+        [Test]
+        [Category(REQUIRES_TRIGGER)]
+        public async Task ListTriggers()
+        {
+            var pagedResponse = _loadTestAdministrationClient.GetTriggersAsync(testIds: _testId);
+            bool found = false;
+
+            await foreach (var trigger in pagedResponse)
             {
-                foreach (var value in page.Values)
+                Assert.NotNull(trigger.TriggerId);
+                if (trigger.TriggerId == _triggerId)
                 {
-                    Assert.NotNull(value.TestProfileId);
+                    found = true;
                 }
             }
+
+            Assert.IsTrue(found, "Created trigger should appear in the list");
         }
 
         [Test]
         [Category(REQUIRES_LOAD_TEST)]
-        [Category(REQUIRES_TEST_PROFILE)]
-        public async Task DeleteTestProfile()
+        public async Task CreateOrUpdateNotificationRule()
         {
-            Response response = await _loadTestAdministrationClient.DeleteTestProfileAsync(_testProfileId);
+            string notificationRuleId = Recording.GenerateId("notif-rule-", 50);
+
+            // Pre-cleanup in case a previous run left this notification rule behind
+            try
+            {
+                await _loadTestAdministrationClient.DeleteNotificationRuleAsync(notificationRuleId);
+            }
+            catch (RequestFailedException)
+            {
+                // Notification rule doesn't exist, that's fine
+            }
+
+            Response response = await _loadTestAdministrationClient.CreateOrUpdateNotificationRuleAsync(
+                notificationRuleId,
+                RequestContent.Create(
+                    new
+                    {
+                        displayName = "Test Notification Rule from SDK",
+                        scope = "Tests",
+                        actionGroupIds = new[] { "/subscriptions/7c71b563-0dc0-4bc0-bcf6-06f8f0516c7a/resourcegroups/nikita-canary-rg/providers/microsoft.insights/actiongroups/nikita-canary" },
+                        events = new object[]
+                        {
+                            new
+                            {
+                                eventType = "TestRunEnded",
+                                condition = new
+                                {
+                                    testRunStatuses = new[] { "DONE", "CANCELLED", "FAILED" },
+                                    testRunResults = new[] { "PASSED", "NOT_APPLICABLE" }
+                                }
+                            },
+                            new
+                            {
+                                eventType = "TestRunStarted"
+                            }
+                        }
+                    }
+                )
+            );
+
+            JsonDocument jsonDocument = JsonDocument.Parse(response.Content.ToString());
+            Assert.NotNull(response.Content);
+            Assert.AreEqual(notificationRuleId, jsonDocument.RootElement.GetProperty("notificationRuleId").ToString());
+            Assert.AreEqual("Test Notification Rule from SDK", jsonDocument.RootElement.GetProperty("displayName").ToString());
+            Assert.AreEqual("Tests", jsonDocument.RootElement.GetProperty("scope").ToString());
+
+            // Cleanup
+            await _loadTestAdministrationClient.DeleteNotificationRuleAsync(notificationRuleId);
+        }
+
+        [Test]
+        [Category(REQUIRES_LOAD_TEST)]
+        [Category(REQUIRES_NOTIFICATION_RULE)]
+        public async Task GetNotificationRule()
+        {
+            Response<NotificationRule> response = await _loadTestAdministrationClient.GetNotificationRuleAsync(_notificationRuleId);
+            NotificationRule notificationRule = response.Value;
+            Assert.NotNull(notificationRule);
+            Assert.AreEqual(_notificationRuleId, notificationRule.NotificationRuleId);
+            Assert.AreEqual("Test Notification Rule from SDK", notificationRule.DisplayName);
+            Assert.IsNotEmpty(notificationRule.ActionGroupIds);
+        }
+
+        [Test]
+        [Category(REQUIRES_LOAD_TEST)]
+        [Category(REQUIRES_NOTIFICATION_RULE)]
+        [Category(SKIP_DELETE_NOTIFICATION_RULE)]
+        public async Task DeleteNotificationRule()
+        {
+            Response response = await _loadTestAdministrationClient.DeleteNotificationRuleAsync(_notificationRuleId);
+            Assert.NotNull(response);
+        }
+
+        [Test]
+        [Category(REQUIRES_LOAD_TEST)]
+        [Category(REQUIRES_NOTIFICATION_RULE)]
+        public async Task ListNotificationRules()
+        {
+            AsyncPageable<NotificationRule> pagedResponse = _loadTestAdministrationClient.GetNotificationRulesAsync();
+            bool found = false;
+
+            await foreach (NotificationRule notificationRule in pagedResponse)
+            {
+                Assert.NotNull(notificationRule.NotificationRuleId);
+                if (notificationRule.NotificationRuleId == _notificationRuleId)
+                {
+                    found = true;
+                    Assert.AreEqual("Test Notification Rule from SDK", notificationRule.DisplayName);
+                }
+            }
+
+            Assert.IsTrue(found, "Created notification rule should appear in the list");
         }
     }
 }
