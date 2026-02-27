@@ -15,26 +15,26 @@ namespace Azure.Developer.LoadTesting.Tests
     {
         internal string _testId;
         internal string _fileName;
-        internal string _testProfileId;
         internal TestHelper _testHelper;
         internal LoadTestAdministrationClient _loadTestAdministrationClient;
         internal LoadTestRunClient _loadTestRunClient;
         internal string _testRunId;
-        internal string _testProfileRunId;
+        internal string _triggerId;
+        internal string _notificationRuleId;
         internal string _resourceId;
-        internal string _targetResourceId;
         internal string _asyncSuffix = string.Empty;
         internal const string SKIP_SET_UP = "SkipSetUp";
         internal const string SKIP_TEAR_DOWN = "SkipTearDown";
         internal const string SKIP_DELETE_TEST_RUN = "SkipDeleteTestRun";
         internal TestRunResultOperation _testRunOperation;
-        internal Operation<BinaryData> _testProfileRunOperation;
 
         internal const string REQUIRES_LOAD_TEST = "RequiresLoadTest";
         internal const string REQUIRES_TEST_FILE = "RequiresTestFile";
-        internal const string REQUIRES_TEST_PROFILE = "RequiresTestProfile";
         internal const string REQUIRES_TEST_RUN = "RequiresTestRun";
-        internal const string REQUIRES_TEST_PROFILE_RUN = "RequiresTestProfileRun";
+        internal const string REQUIRES_TRIGGER = "RequiresTrigger";
+        internal const string REQUIRES_NOTIFICATION_RULE = "RequiresNotificationRule";
+        internal const string SKIP_DELETE_NOTIFICATION_RULE = "SkipDeleteNotificationRule";
+        internal const string SKIP_DELETE_TRIGGER = "SkipDeleteTrigger";
 
         internal bool RequiresLoadTest()
         {
@@ -49,25 +49,35 @@ namespace Azure.Developer.LoadTesting.Tests
             return categories != null && categories.Contains(REQUIRES_TEST_FILE);
         }
 
-        internal bool RequiresTestProfile()
-        {
-            _testProfileId = SafeSubstring($"{CurrentContext.Test.MethodName.Replace("_", "-")}{_asyncSuffix}-testprofile".ToLower(), 50);
-            var categories = CurrentContext.Test.Properties["Category"];
-            return categories != null && categories.Contains(REQUIRES_TEST_PROFILE);
-        }
-
         internal bool RequiresTestRun()
         {
             _testRunId = SafeSubstring($"{CurrentContext.Test.MethodName.Replace("_", "-")}{_asyncSuffix}-testrun".ToLower(), 50);
             var categories = CurrentContext.Test.Properties["Category"];
             return categories != null && categories.Contains(REQUIRES_TEST_RUN);
         }
-
-        internal bool RequiresTestProfileRun()
+        internal bool RequiresTrigger()
         {
-            _testProfileRunId = SafeSubstring($"{CurrentContext.Test.MethodName.Replace("_", "-")}{_asyncSuffix}-testprofilerun".ToLower(), 50);
+            _triggerId =  Recording.GenerateId("trigger-", 50);
             var categories = CurrentContext.Test.Properties["Category"];
-            return categories != null && categories.Contains(REQUIRES_TEST_PROFILE_RUN);
+            return categories != null && categories.Contains(REQUIRES_TRIGGER);
+        }
+        internal bool RequiresNotificationRule()
+        {
+            _notificationRuleId = Recording.GenerateId("notif-rule-", 50);
+            var categories = CurrentContext.Test.Properties["Category"];
+            return categories != null && categories.Contains(REQUIRES_NOTIFICATION_RULE);
+        }
+
+        internal bool CheckForSkipDeleteNotificationRule()
+        {
+            var categories = CurrentContext.Test.Properties["Category"];
+            return categories != null && categories.Contains(SKIP_DELETE_NOTIFICATION_RULE);
+        }
+
+        internal bool CheckForSkipDeleteTrigger()
+        {
+            var categories = CurrentContext.Test.Properties["Category"];
+            return categories != null && categories.Contains(SKIP_DELETE_TRIGGER);
         }
 
         internal bool SkipTearDown()
@@ -92,15 +102,15 @@ namespace Azure.Developer.LoadTesting.Tests
             return str;
         }
 
-        public LoadTestTestsBase(bool isAsync) : base(isAsync)
+        public LoadTestTestsBase(bool isAsync) : base(isAsync, RecordedTestMode.Record)
         {
             _asyncSuffix = isAsync ? "a" : string.Empty;
             _testId = "loadtest-from-csharp-sdk" + _asyncSuffix;
-            _testProfileId = "testprofile-from-csharp-sdk" + _asyncSuffix;
             _fileName = "sample.jmx";
             _testRunId = "testrun-from-csharp-sdk" + _asyncSuffix;
-            _testProfileRunId = "testprofilerun-from-csharp-sdk" + _asyncSuffix;
             _testHelper = new TestHelper();
+            _triggerId = "trigger-from-csharp-sdk" + _asyncSuffix;
+            _notificationRuleId = "notif-rule-from-csharp-sdk" + _asyncSuffix;
 
             BodyKeySanitizers.Add(new BodyKeySanitizer("$..url")
             {
