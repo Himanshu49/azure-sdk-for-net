@@ -172,6 +172,7 @@ namespace Azure.Developer.LoadTesting.Tests
         }
 
         [Test]
+        [Category(REQUIRES_TEST_RUN)]
         public async Task CreateOrUpdateAppComponents()
         {
             await _testRunOperation.WaitForCompletionAsync();

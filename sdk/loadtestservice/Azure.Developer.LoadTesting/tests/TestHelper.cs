@@ -142,7 +142,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
             );
         }
 
-        public async Task SetupNotificationRuleAsync(LoadTestAdministrationClient client, string notificationRuleId)
+        public async Task SetupNotificationRuleAsync(LoadTestAdministrationClient client, string notificationRuleId, string actionGroupId)
         {
             // Pre-cleanup in case a previous run left this notification rule behind
             try
@@ -161,7 +161,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
                     {
                         displayName = "Test Notification Rule from SDK",
                         scope = "Tests",
-                        actionGroupIds = new[] { "/subscriptions/7c71b563-0dc0-4bc0-bcf6-06f8f0516c7a/resourcegroups/nikita-canary-rg/providers/microsoft.insights/actiongroups/nikita-canary" },
+                        actionGroupIds = new[] { actionGroupId },
                         events = new object[]
                         {
                             new
@@ -183,7 +183,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
             );
         }
 
-        public void SetupNotificationRule(LoadTestAdministrationClient client, string notificationRuleId)
+        public void SetupNotificationRule(LoadTestAdministrationClient client, string notificationRuleId, string actionGroupId)
         {
             // Pre-cleanup in case a previous run left this notification rule behind
             try
@@ -202,7 +202,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
                     {
                         displayName = "Test Notification Rule from SDK",
                         scope = "Tests",
-                        actionGroupIds = new[] { "/subscriptions/7c71b563-0dc0-4bc0-bcf6-06f8f0516c7a/resourcegroups/nikita-canary-rg/providers/microsoft.insights/actiongroups/nikita-canary" },
+                        actionGroupIds = new[] { actionGroupId },
                         events = new object[]
                         {
                             new
