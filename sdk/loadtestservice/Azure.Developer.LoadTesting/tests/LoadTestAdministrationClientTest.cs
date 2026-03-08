@@ -48,7 +48,8 @@ namespace Azure.Developer.LoadTesting.Tests
             {
                 await _testHelper.SetupNotificationRuleAsync(
                     _loadTestAdministrationClient,
-                    _notificationRuleId);
+                    _notificationRuleId,
+                    TestEnvironment.ActionGroupId);
             }
         }
 

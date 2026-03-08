@@ -13,5 +13,7 @@ namespace Azure.Developer.LoadTesting.Tests
         public string ResourceId => GetRecordedVariable("LOADTESTSERVICE_RESOURCE_ID");
 
         public string TargetResourceId => GetRecordedVariable("LOADTESTSERVICE_TARGET_RESOURCE_ID");
+
+        public string ActionGroupId => GetRecordedVariable("LOADTESTING_ACTION_GROUP_ID");
     }
 }
