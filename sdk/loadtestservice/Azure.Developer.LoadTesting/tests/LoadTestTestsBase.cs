@@ -102,7 +102,7 @@ namespace Azure.Developer.LoadTesting.Tests
             return str;
         }
 
-        public LoadTestTestsBase(bool isAsync) : base(isAsync, RecordedTestMode.Record)
+        public LoadTestTestsBase(bool isAsync) : base(isAsync)
         {
             _asyncSuffix = isAsync ? "a" : string.Empty;
             _testId = "loadtest-from-csharp-sdk" + _asyncSuffix;
@@ -122,13 +122,13 @@ namespace Azure.Developer.LoadTesting.Tests
         internal LoadTestAdministrationClient CreateAdministrationClient()
         {
             // TODO remove service version pinning and re-record tests with latest service version https://github.com/Azure/azure-sdk-for-net/issues/53204
-            return InstrumentClient(new LoadTestAdministrationClient(new Uri("https://" + TestEnvironment.Endpoint), TestEnvironment.Credential, InstrumentClientOptions(new LoadTestingClientOptions(LoadTestingClientOptions.ServiceVersion.V2024_12_01_Preview))));
+            return InstrumentClient(new LoadTestAdministrationClient(new Uri("https://" + TestEnvironment.Endpoint), TestEnvironment.Credential, InstrumentClientOptions(new LoadTestingClientOptions(LoadTestingClientOptions.ServiceVersion.V2025_11_01_Preview))));
         }
 
         internal LoadTestRunClient CreateRunClient()
         {
             // TODO remove service version pinning and re-record tests with latest service version https://github.com/Azure/azure-sdk-for-net/issues/53204
-            return InstrumentClient(new LoadTestRunClient(new Uri("https://" + TestEnvironment.Endpoint), TestEnvironment.Credential, InstrumentClientOptions(new LoadTestingClientOptions(LoadTestingClientOptions.ServiceVersion.V2024_12_01_Preview))));
+            return InstrumentClient(new LoadTestRunClient(new Uri("https://" + TestEnvironment.Endpoint), TestEnvironment.Credential, InstrumentClientOptions(new LoadTestingClientOptions(LoadTestingClientOptions.ServiceVersion.V2025_11_01_Preview))));
         }
     }
 }

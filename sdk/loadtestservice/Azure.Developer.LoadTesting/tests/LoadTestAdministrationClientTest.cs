@@ -399,6 +399,44 @@ namespace Azure.Developer.LoadTesting.Tests
 
         [Test]
         [Category(REQUIRES_LOAD_TEST)]
+        public async Task CloneTest()
+        {
+            string clonedTestId = Recording.GenerateId("cloned-", 50);
+
+            try
+            {
+                Operation<LoadTest> cloneOperation = await _loadTestAdministrationClient.CloneTestAsync(
+                    WaitUntil.Completed,
+                    _testId,
+                    clonedTestId,
+                    displayName: "Cloned Test from SDK",
+                    description: "This test was cloned through loadtesting C# SDK"
+                );
+
+                Assert.IsTrue(cloneOperation.HasCompleted);
+                Assert.IsTrue(cloneOperation.HasValue);
+
+                LoadTest loadTest = await _loadTestAdministrationClient.GetTestAsync(clonedTestId);
+
+                Assert.AreEqual(clonedTestId, loadTest.TestId);
+                Assert.AreEqual("Cloned Test from SDK", loadTest.DisplayName);
+            }
+            finally
+            {
+                // Cleanup the cloned test
+                try
+                {
+                    await _loadTestAdministrationClient.DeleteTestAsync(clonedTestId);
+                }
+                catch (RequestFailedException)
+                {
+                    // Swallow exception if the cloned test was not created successfully
+                }
+            }
+        }
+
+        [Test]
+        [Category(REQUIRES_LOAD_TEST)]
         public async Task CreateOrUpdateTrigger()
         {
             Response response = await _loadTestAdministrationClient.CreateOrUpdateTriggerAsync(
@@ -409,12 +447,11 @@ namespace Azure.Developer.LoadTesting.Tests
                         displayName = "Test Trigger from SDK",
                         kind = "ScheduleTestsTrigger",
                         testIds = new[] { _testId },
-                        startDateTime = DateTimeOffset.UtcNow.AddDays(1).ToString("o"),
+                        startDateTime = "2030-01-15T00:00:00.000Z",
                         recurrence = new
                         {
                             interval = 1,
-                            frequency = "Daily",
-                            endDateTime = DateTimeOffset.UtcNow.AddDays(30).ToString("o"),
+                            frequency = "Daily"
                         }
                     }
                 )
@@ -472,16 +509,6 @@ namespace Azure.Developer.LoadTesting.Tests
         {
             string notificationRuleId = Recording.GenerateId("notif-rule-", 50);
 
-            // Pre-cleanup in case a previous run left this notification rule behind
-            try
-            {
-                await _loadTestAdministrationClient.DeleteNotificationRuleAsync(notificationRuleId);
-            }
-            catch (RequestFailedException)
-            {
-                // Notification rule doesn't exist, that's fine
-            }
-
             Response response = await _loadTestAdministrationClient.CreateOrUpdateNotificationRuleAsync(
                 notificationRuleId,
                 RequestContent.Create(
@@ -489,7 +516,7 @@ namespace Azure.Developer.LoadTesting.Tests
                     {
                         displayName = "Test Notification Rule from SDK",
                         scope = "Tests",
-                        actionGroupIds = new[] { "/subscriptions/7c71b563-0dc0-4bc0-bcf6-06f8f0516c7a/resourcegroups/nikita-canary-rg/providers/microsoft.insights/actiongroups/nikita-canary" },
+                        actionGroupIds = new[] { TestEnvironment.ActionGroupId },
                         events = new object[]
                         {
                             new

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -12,7 +12,7 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
     {
         [Test]
         [SyncOnly]
-        public void CreateOrUpdateTestProfile()
+        public void CloneTest()
         {
 #if SNIPPET
             // The data-plane endpoint is obtained from Control Plane APIs with "https://"
@@ -24,49 +24,28 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
             Uri endpointUrl = new Uri("https://" + endpoint);
             TokenCredential credential = TestEnvironment.Credential;
 #endif
-
-            // creating LoadTesting Administration Client
             LoadTestAdministrationClient loadTestAdministrationClient = new LoadTestAdministrationClient(endpointUrl, credential);
 
-            #region Snippet:Azure_Developer_LoadTesting_CreateOrUpdateTestProfile
-            string testProfileId = "my-test-profile-id";
-            string testId = "my-test-id"; // This test is already created
-            string targetResourceId = TestEnvironment.TargetResourceId;
+            #region Snippet:Azure_Developer_LoadTesting_CloneTest
+
+            string sourceTestId = "existing-test-id";
+            string newTestId = "cloned-test-id";
 
             var data = new
             {
-                description = "This is created using SDK",
-                displayName = "SDK's Test Profile",
-                testId = testId,
-                targetResourceId = targetResourceId,
-                targetResourceConfigurations = new
-                {
-                    kind = "FunctionsFlexConsumption",
-                    configurations = new
-                    {
-                        config1 = new
-                        {
-                            instanceMemoryMB = 2048,
-                            httpConcurrency = 20
-                        },
-                        config2 = new
-                        {
-                            instanceMemoryMB = 4096,
-                            httpConcurrency = 20
-                        }
-                    }
-                }
+                sourceTestId = sourceTestId,
             };
 
             try
             {
-                Response response = loadTestAdministrationClient.CreateOrUpdateTestProfile(testProfileId, RequestContent.Create(data));
+                Response response = loadTestAdministrationClient.CreateOrUpdateTest(newTestId, RequestContent.Create(data));
                 Console.WriteLine(response.Content.ToString());
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+
             #endregion
         }
     }
