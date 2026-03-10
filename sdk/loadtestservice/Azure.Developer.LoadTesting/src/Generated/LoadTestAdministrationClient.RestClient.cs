@@ -710,7 +710,10 @@ namespace Azure.Developer.LoadTesting
             uri.AppendPath("/tests/", false);
             uri.AppendPath(testId, true);
             uri.AppendPath(":generateTestPlanRecommendations", false);
-            uri.AppendQuery("api-version", _apiVersion, true);
+            if (_apiVersion != null)
+            {
+                uri.AppendQuery("api-version", _apiVersion, true);
+            }
             HttpMessage message = Pipeline.CreateMessage(context, PipelineMessageClassifier202);
             Request request = message.Request;
             request.Uri = uri;
