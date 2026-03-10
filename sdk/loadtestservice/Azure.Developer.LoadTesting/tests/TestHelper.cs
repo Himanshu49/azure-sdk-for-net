@@ -100,7 +100,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
                         displayName = "Test Trigger from SDK",
                         kind = "ScheduleTestsTrigger",
                         testIds = new[] { testId },
-                        startDateTime = DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                        startDateTime = "2030-01-15T00:00:00.000Z",
                         recurrence = new
                         {
                             frequency = "Daily",
@@ -131,7 +131,7 @@ namespace Azure.Developer.LoadTesting.Tests.Helper
                         displayName = "Test Trigger from SDK",
                         kind = "ScheduleTestsTrigger",
                         testIds = new[] { testId },
-                        startDateTime = DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                        startDateTime = "2030-01-15T00:00:00.000Z",
                         recurrence = new
                         {
                             frequency = "Daily",

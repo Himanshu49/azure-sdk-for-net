@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -12,7 +12,7 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
     {
         [Test]
         [SyncOnly]
-        public void BeginTestProfileRun()
+        public void GenerateAndGetInsight()
         {
 #if SNIPPET
             // The data-plane endpoint is obtained from Control Plane APIs with "https://"
@@ -24,40 +24,42 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
             Uri endpointUrl = new Uri("https://" + endpoint);
             TokenCredential credential = TestEnvironment.Credential;
 #endif
-
-            // creating LoadTesting Run Client
             LoadTestRunClient loadTestRunClient = new LoadTestRunClient(endpointUrl, credential);
 
-            #region Snippet:Azure_Developer_LoadTesting_BeginTestProfileRun
-            string testProfileRunId = "my-test-profile-run-id";
-            string testProfileId = "my-test-profile-id"; // This test profile is already created
+            #region Snippet:Azure_Developer_LoadTesting_GenerateTestRunInsights
+
+            string testRunId = "my-test-run-id";
 
             var data = new
             {
-                description = "This is created using SDK",
-                displayName = "SDK's Test Profile Run",
-                testProfileId = testProfileId,
+                displayName = "My Test Run Insight",
+                description = "Insight generated for test run analysis",
             };
 
             try
             {
-                var operation = loadTestRunClient.BeginTestProfileRun(WaitUntil.Started, testProfileRunId, RequestContent.Create(data));
-
-                // get initial response
-                Response initialResponse = operation.GetRawResponse();
-                Console.WriteLine(initialResponse.Content.ToString());
-
-                // waiting for test profile run to get completed
-                operation.WaitForCompletion();
-
-                // final response
-                Response finalResponse = operation.GetRawResponse();
-                Console.WriteLine(finalResponse.Content.ToString());
+                Operation operation = loadTestRunClient.GenerateTestRunInsights(WaitUntil.Completed, testRunId);
+                Console.WriteLine($"Operation has value: {operation.HasCompleted}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+
+            #endregion
+
+            #region Snippet:Azure_Developer_LoadTesting_GetLatestTestRunInsights
+
+            try
+            {
+                Response<TestRunInsights> response = loadTestRunClient.GetLatestTestRunInsights(testRunId);
+                Console.WriteLine(response.Value);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
             #endregion
         }
     }
