@@ -5,23 +5,22 @@ To use these samples, you'll first need to set up resources. See [getting starte
 Insights provide analysis and recommendations for your load test runs. You can generate insights for a test run and retrieve them to understand performance patterns.
 
 ## Create LoadTestRunClient
-```C# Snippet:Azure_Developer_LoadTesting_CreateRunClient
+```C# Snippet:Azure_Developer_LoadTesting_CreateTestRunClient
 // The data-plane endpoint is obtained from Control Plane APIs with "https://"
 // To obtain endpoint please follow: https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/loadtestservice/Azure.Developer.LoadTesting#data-plane-endpoint
 Uri endpointUrl = new Uri("https://" + <your resource URI obtained from steps above>);
 TokenCredential credential = new DefaultAzureCredential();
 
-// creating LoadTesting Run Client
+// creating LoadTesting TestRun Client
 LoadTestRunClient loadTestRunClient = new LoadTestRunClient(endpointUrl, credential);
 ```
 
-## Generate an Insight
+## Generate Insights
 
-Create an insight for a specific test run.
+Generate insights for a specific test run.
 
-```C# Snippet:Azure_Developer_LoadTesting_GenerateInsight
+```C# Snippet:Azure_Developer_LoadTesting_GenerateTestRunInsights
 string testRunId = "my-test-run-id";
-string insightId = "my-insight-id";
 
 var data = new
 {
@@ -31,8 +30,8 @@ var data = new
 
 try
 {
-    Response response = loadTestRunClient.CreateOrUpdateInsight(testRunId, insightId, RequestContent.Create(data));
-    Console.WriteLine(response.Content.ToString());
+    Operation operation = loadTestRunClient.GenerateTestRunInsights(WaitUntil.Completed, testRunId);
+    Console.WriteLine($"Operation has value: {operation.HasCompleted}");
 }
 catch (Exception ex)
 {
@@ -40,15 +39,15 @@ catch (Exception ex)
 }
 ```
 
-## Get an Insight
+## Get Latest Insights
 
-Retrieve a specific insight by its Id.
+Retrieve the latest insights for a test run.
 
-```C# Snippet:Azure_Developer_LoadTesting_GetInsight
+```C# Snippet:Azure_Developer_LoadTesting_GetLatestTestRunInsights
 try
 {
-    Response getResponse = loadTestRunClient.GetInsight(testRunId, insightId, context: null);
-    Console.WriteLine(getResponse.Content.ToString());
+    Response<TestRunInsights> response = loadTestRunClient.GetLatestTestRunInsights(testRunId);
+    Console.WriteLine(response.Value);
 }
 catch (Exception ex)
 {

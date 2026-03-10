@@ -31,8 +31,8 @@ var data = new
 
 try
 {
-    Response response = loadTestAdministrationClient.BeginGenerateTestPlanRecommendation(testId, RequestContent.Create(data));
-    Console.WriteLine(response.Content.ToString());
+    Operation operation = loadTestAdministrationClient.GenerateTestPlanRecommendations(WaitUntil.Completed,testId, null);
+    Console.WriteLine($"Operation has value: {operation.HasCompleted}");
 }
 catch (Exception ex)
 {
