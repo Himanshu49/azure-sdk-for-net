@@ -22,13 +22,6 @@ Generate a test plan recommendation for a given test and target resource.
 ```C# Snippet:Azure_Developer_LoadTesting_GenerateTestPlanRecommendation
 string testId = "my-test-id";
 
-var data = new
-{
-    targetResourceId = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Web/sites/<app-name>",
-    targetResourcePort = 443,
-    testPlanType = "URL"
-};
-
 try
 {
     Operation operation = loadTestAdministrationClient.GenerateTestPlanRecommendations(WaitUntil.Completed,testId, null);

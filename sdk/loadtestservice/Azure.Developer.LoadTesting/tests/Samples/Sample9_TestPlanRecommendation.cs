@@ -30,13 +30,6 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
 
             string testId = "my-test-id";
 
-            var data = new
-            {
-                targetResourceId = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Web/sites/<app-name>",
-                targetResourcePort = 443,
-                testPlanType = "URL"
-            };
-
             try
             {
                 Operation operation = loadTestAdministrationClient.GenerateTestPlanRecommendations(WaitUntil.Completed,testId, null);
