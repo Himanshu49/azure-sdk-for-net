@@ -30,12 +30,6 @@ namespace Azure.Developer.LoadTesting.Tests.Samples
 
             string testRunId = "my-test-run-id";
 
-            var data = new
-            {
-                displayName = "My Test Run Insight",
-                description = "Insight generated for test run analysis",
-            };
-
             try
             {
                 Operation operation = loadTestRunClient.GenerateTestRunInsights(WaitUntil.Completed, testRunId);

@@ -22,12 +22,6 @@ Generate insights for a specific test run.
 ```C# Snippet:Azure_Developer_LoadTesting_GenerateTestRunInsights
 string testRunId = "my-test-run-id";
 
-var data = new
-{
-    displayName = "My Test Run Insight",
-    description = "Insight generated for test run analysis",
-};
-
 try
 {
     Operation operation = loadTestRunClient.GenerateTestRunInsights(WaitUntil.Completed, testRunId);
