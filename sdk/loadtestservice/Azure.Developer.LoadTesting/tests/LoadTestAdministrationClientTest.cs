@@ -61,7 +61,7 @@ namespace Azure.Developer.LoadTesting.Tests
                 return;
             }
 
-            if (RequiresNotificationRule() && !CheckForSkipDeleteNotificationRule())
+            if (!CheckForSkipDeleteNotificationRule())
             {
                 try
                 {
@@ -69,11 +69,11 @@ namespace Azure.Developer.LoadTesting.Tests
                 }
                 catch (Exception)
                 {
-                    // Swallow - notification rule may already be deleted
+                    // Swallow - notification rule may not exist or already be deleted
                 }
             }
 
-            if (RequiresTrigger() && !CheckForSkipDeleteTrigger())
+            if (!CheckForSkipDeleteTrigger())
             {
                 try
                 {
@@ -81,7 +81,7 @@ namespace Azure.Developer.LoadTesting.Tests
                 }
                 catch (Exception)
                 {
-                    // Swallow - trigger may already be deleted
+                    // Swallow - trigger may not exist or already be deleted
                 }
             }
 
