@@ -10,7 +10,7 @@ Azure Load Testing provides client library in .NET to the user by which they can
 Various documentation is available to help you get started
 
 - [Source code][source_code]
-- [REST API reference documentation](https://learn.microsoft.com/rest/api/loadtesting/)
+- [REST API reference documentation](https://learn.microsoft.com/rest/api/apptesting/loadtest/)
 - [Product Documentation](https://azure.microsoft.com/services/load-testing/)
 
 ## Getting started
@@ -25,7 +25,7 @@ dotnet add package Azure.Developer.LoadTesting
 
 ### Prerequisites
 
-You must have an [Azure subscription](https://azure.microsoft.com/free/dotnet/) and [Azure Load Test Service Resource](https://learn.microsoft.com/azure/load-testing/) to use this package. You can create the resource via the [Azure Portal](https://portal.azure.com), or the [Azure CLI](https://learn.microsoft.com/cli/azure).
+You must have an [Azure subscription](https://azure.microsoft.com/free/dotnet/) and [Azure Load Test Service Resource](https://learn.microsoft.com/azure/app-testing/) to use this package. You can create the resource via the [Azure Portal](https://portal.azure.com), or the [Azure CLI](https://learn.microsoft.com/cli/azure).
 
 
 ### Authenticate the client
@@ -156,7 +156,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct][code_of_con
 [client_secret_credential]: https://learn.microsoft.com/dotnet/api/azure.identity.clientsecretcredential
 [nuget]: https://www.nuget.org/
 [azure_sub]: https://azure.microsoft.com/free/
-[api_reference_doc]: https://learn.microsoft.com/rest/api/loadtesting/
+[api_reference_doc]: https://learn.microsoft.com/rest/api/apptesting/loadtest/
 [product_documentation]: https://azure.microsoft.com/services/load-testing/
-[obtaining_data_plane_uri]: https://learn.microsoft.com/rest/api/loadtesting/data-plane-uri
+[obtaining_data_plane_uri]: https://learn.microsoft.com/rest/api/apptesting/loadtest/data-plane-uri
 [azure_core_diagnostics]: https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/Azure.Core/samples/Diagnostics.md
